@@ -1,0 +1,233 @@
+<div class="panel panel-primary">
+	<!-- <div ng-show="login == 'true'" class="panel panel-primary">  -->
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			<b>Manage Candidate</b>
+		</h3>
+	</div>
+
+	<div class="nestedContainer">
+		<br> <br>
+
+		<div style="width: 90%; margin-left: 50px;">
+			<div style="width: 90%;">
+				<table class="table releaseBorder">
+					<tr>
+						<td><input style="width: 300px; float: left;" type="text"
+							class="form-control input-sm" ng-model="searchText.any"
+							placeholder="Search Text" required> </td><td><label>Status : </label></td><td>
+							<select style="width: 100px; float: left;" class="form-control input-sm" ng-model="searchText.status" required>
+									<option value="">All</option>
+									<option selected="selected">Pursued</option>
+									<option>Assigned</option>
+									<option>Rejected</option>
+									<option value="NOT_STARTED">Not Started</option>
+									<option value="Offered">Offered</option>
+							</select>
+							</td>
+						<td><a href="#/interviewAdmin/non"
+							class="btn btn-info btn-sm" role="button"><b>Add New Candidate</b></a></td>
+					</tr>
+				</table>
+			</div>
+			
+
+			<h4 ng-if="candidates == 'NO_DATA'">
+				<b>No records to display !!</b>
+			</h4>
+			<div class="panel panel-default" ng-if="candidates != 'NO_DATA'"
+				style="overflow-y: scroll; overflow: auto; max-height: 600px;">
+				<div class="panel-body">
+					<table class="table releaseBorder">
+						<tr>
+							<th>Candidate Name</th>
+							<th>Role</th>
+							<th>Status</th>
+							<th>Interview Level</th>
+							<th>Interviewer</th>
+							<th>Edit</th>
+							<th>Assign</th>
+						</tr>
+						<tr ng-repeat="x in candidates | toArray | orderBy:'interviewLevel' | filter:searchText.any | filter:{'candidateStatus':searchText.status}">
+							<td><a href="" ng-click="showCandidateDetails(x.candidateId)" data-toggle="modal" data-target="#showDetailsModal"><span class="glyphicon glyphicon-link"></span></a>&nbsp;&nbsp;{{x.name}}</td>
+							<td>{{x.role}}</td>
+							<td><span ng-show="x.candidateStatus == 'NOT_STARTED'"><span
+								class="badge">not started</span></span> 
+								<span ng-show="x.candidateStatus == 'REJECTED'"><span
+								class="badge badge-error">rejected</span></span>
+								<span 
+								ng-show="x.candidateStatus == 'ASSIGNED'"><span
+									class="badge badge-warning">assigned</span></span> <span
+								ng-show="x.candidateStatus == 'PURSUED'"><span
+									class="badge badge-success">pursued</span></span>
+									<span ng-show="x.candidateStatus == 'OFFERED'"><span
+									class="badge badge-offered">offered</span></span></td>
+							<td align="center"><span ng-show="x.interviewLevel == '0'">n/a</span><span
+								ng-show="x.interviewLevel != '0'"><span class="badge">{{x.interviewLevel}}</span></span></td>
+							<td><span ng-show="x.lastInterviewedBy == 'na'">n/a</span><span
+								ng-show="x.lastInterviewedBy != 'na'">{{x.lastInterviewedBy}}</span></td>
+							<td><a href="#/interviewAdmin/{{x.candidateId}}"><span
+									class="glyphicon glyphicon-edit"></span></a></td>
+							<td><a href="" ng-click="setCandidate(x)"
+								data-toggle="modal" data-target="#assignModal"><span
+									class="glyphicon glyphicon-user"></span></a></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+		<!-- 	<br> <a href="#/interviewAdmin/non" class="btn btn-info"
+				role="button"><b>Add Candidate</b></a>  -->
+		</div>
+
+
+
+
+
+
+
+
+
+		<br> <br>
+
+	</div>
+</div>
+
+<div class="modal fade" id="assignModal" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">
+					<span style="color: blue"><b>Assign Interviewer</b></span>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div class="nestedContainer">
+					<div class="form-group">
+						<table class="table">
+							<tr>
+								<!-- <td><label for="usr">Candidate ID :</label> &nbsp;&nbsp;&nbsp;&nbsp;{{modalCandidate.candidateId}}</td>  -->
+								<td><label for="usr">Candidate Name :</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;{{modalCandidate.name}}</td>
+								<td><label for="usr">Role :</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;{{modalCandidate.role}}</td>
+							</tr>
+							<tr>
+								<td><label for="usr">Organization :</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;{{modalCandidate.organization}}</td>
+								<td><label for="usr">Experience :</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;{{modalCandidate.experience}}</td>
+
+							</tr>
+							<tr>
+								<td><label for="usr">Interview Level :</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;{{interviewLevel}}</td>
+								<td></td>
+							</tr>
+						</table>
+
+					</div>
+
+					<div class="form-group">
+						<label for="pwd">Interviewer</label> <select class="form-control"
+							ng-model="interviewer" required>
+							<option ng-repeat="interviewer in interviewers"
+								value="{{interviewer.emailId}}">{{interviewer.name}}</option>
+
+						</select>
+
+
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" ng-click="assignInterviewer()"
+							class="btn btn-primary" data-dismiss="modal">Assign</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+<!-- Show Details Modal code below -->
+
+<div class="modal fade" id="showDetailsModal" role="dialog">
+	<div class="modal-dialog modal-lg">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">
+					<span style="color: blue"><b>Candidate Details for : {{candidateDetails.name}}</b></span>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div class="nestedContainer">
+					<div class="form-group">
+						<table class="table">
+							<tr>
+								<!-- <td><label for="usr">Candidate ID :</label> &nbsp;&nbsp;&nbsp;&nbsp;{{modalCandidate.candidateId}}</td>  -->
+								<td><label for="usr">Candidate Name :</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;{{candidateDetails.name}}</td>
+								<td><label for="usr">Role :</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;{{candidateDetails.role}}</td>
+							</tr>
+							<tr>
+								<td><label for="usr">Organization :</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;{{candidateDetails.organization}}</td>
+								<td><label for="usr">Experience :</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;{{candidateDetails.experience}}</td>
+
+							</tr>
+							
+						</table>
+						<label style="color:blue;font-size:18px">Interview Details:</label>
+						<h4 ng-if="interviewDetails == 'NO_DATA'" style="color:red" align="center">Interview not yet started!!</h4>
+						<table class="table" ng-if="interviewDetails != 'NO_DATA'">
+							<tr>
+								<th>Interview Level</th>
+								<th>Interviewer</th>
+								<th>Result</th>
+								<th>Assigned Date</th>
+							</tr>
+							
+							<tr ng-repeat="x in interviewDetails" ng-if="convertToInt(x.interviewLevel) < 10">
+								<td><span class="badge">{{x.interviewLevel}}</span></td>
+								<td>{{x.interviewer}}</td>
+								<td>
+								<span ng-show="x.result == 'NOT_STARTED'"><span
+								class="badge">not started</span></span> 
+								<span ng-show="x.result == 'REJECTED'"><span
+								class="badge badge-error">rejected</span></span>
+								<span 
+								ng-show="x.result == 'ASSIGNED'"><span
+									class="badge badge-warning">assigned</span></span> <span
+								ng-show="x.result == 'PURSUED'"><span
+									class="badge badge-success">pursued</span></span>
+								</td>
+								<td>{{x.assignedDate | split:'T':0}}</td>
+							</tr>
+						</table>
+
+					</div>
+
+					
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+
