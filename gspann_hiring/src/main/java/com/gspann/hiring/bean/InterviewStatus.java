@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gspann.hiring.bean.JsonDateSerializer;
 
 /**
  * 
@@ -46,6 +48,7 @@ public class InterviewStatus {
 	public void setInterviewer(String interviewer) {
 		this.interviewer = interviewer;
 	}
+	@JsonSerialize(using=JsonDateSerializer.class)
 	public Date getAssignedDate() {
 		return assignedDate;
 	}

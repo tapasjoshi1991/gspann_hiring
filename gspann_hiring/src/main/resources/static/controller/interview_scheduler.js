@@ -264,16 +264,17 @@ myApp
 					});
 					$scope.getCandidates = function() {
 						$http.get('/candidates').success(function(data) {
-							if (typeof data.candidate == 'undefined') {
-								console.log("candidate is not defined");
-								$scope.candidates = "NO_DATA";
-							} else if (data.candidate.length > 1) {
-								console.log("More than one records");
-								$scope.candidates = data.candidate;
-							} else {
-								console.log("Only one candidate");
-								$scope.candidates = data;
-							}
+							$scope.candidates = data;
+//							if (typeof data.candidate == 'undefined') {
+//								console.log("candidate is not defined");
+//								$scope.candidates = "NO_DATA";
+//							} else if (data.candidate.length > 1) {
+//								console.log("More than one records");
+//								$scope.candidates = data.candidate;
+//							} else {
+//								console.log("Only one candidate");
+//								$scope.candidates = data;
+//							}
 							console.log(typeof $scope.candidates);
 
 						});
@@ -307,35 +308,41 @@ myApp
 								.success(
 										function(data) {
 											$scope.candidateDetails = data;
-											if (typeof data.interviewStatusList == 'undefined') {
-												$scope.interviewDetails = "NO_DATA";
-											} else if (data.interviewStatusList.length > 1) {
-												$scope.interviewDetails = data.interviewStatusList;
-											} else {
-												$scope.interviewDetails = data;
-											}
+											$scope.interviewDetails = data.interviewStatusList;
+//											if (typeof data.interviewStatusList == 'undefined') {
+//												$scope.interviewDetails = "NO_DATA";
+//											} else if (data.interviewStatusList.length > 1) {
+//												
+//											} else {
+//												$scope.interviewDetails = data;
+//											}
 										});
 					}
 
 					$scope.assignInterviewer = function() {
 						console.log("Interview assignment called");
+						var d = new Date();
+						$scope.currentDate = d.getFullYear() + "-" + (d.getMonth() + 1)
+								+ "-" + d.getDate();
+						var postData = {
+								candidateId : $scope.modalCandidate.candidateId,
+								interviewLevel : $scope.interviewLevel,
+								interviewer : $scope.interviewer,
+								assignedDate : $scope.currentDate,
+								result : 'NOT_STARTED'
+						};
 
 						$http
 								.post(
-										'/HEDEnvDetails/InterviewService/assignInterviewer?candidateId='
-												+ $scope.modalCandidate.candidateId
-												+ '&interviewLevel='
-												+ $scope.interviewLevel
-												+ '&interviewer='
-												+ $scope.interviewer)
+										'/interview',postData)
 								.success(
 										function(data) {
 											$scope.assignResult = data;
 											console.log(data);
-											if (data == 'success') {
+											if (parseInt(data.interviewId) > 0 ) {
 												swal(
 														"Interviewer assigned Successfully",
-														"Notification has been triggered",
+														"Notification has been triggered to the interviewer",
 														"success");
 												$scope.getCandidates();
 											}

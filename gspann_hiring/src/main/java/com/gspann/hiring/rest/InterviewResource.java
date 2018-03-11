@@ -1,11 +1,9 @@
 package com.gspann.hiring.rest;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.gspann.hiring.bean.Candidate;
@@ -75,6 +72,23 @@ public class InterviewResource {
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
 		}
 
+	}
+	
+	@PostMapping("/interview")
+	public ResponseEntity<InterviewStatus> addInterview(@RequestBody InterviewStatus interview){
+		
+		InterviewStatus resultantInterview = interviewService.addInterview(interview);
+		Candidate candidate = interviewService.getCandidate(interview.getCandidateId());
+		candidate.setCandidateStatus("ASSIGNED");
+		candidate.setInterviewLevel(interview.getInterviewLevel());
+		interviewService.updateCandidate(candidate);
+		Optional<InterviewStatus> opt = Optional.of(resultantInterview);
+		if(opt.isPresent()) {
+			return new ResponseEntity<InterviewStatus>(resultantInterview,null,HttpStatus.CREATED);
+		}else {
+			return new ResponseEntity<InterviewStatus>(null,null,HttpStatus.EXPECTATION_FAILED);
+		}
+		
 	}
 	
 	@GetMapping("/downloadResume/{candidateId}")

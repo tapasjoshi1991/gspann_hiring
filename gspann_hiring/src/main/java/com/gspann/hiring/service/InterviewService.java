@@ -68,5 +68,9 @@ public class InterviewService {
 	public boolean updateResume(byte[] resume, long candidateId) {
 		return candidateDao.updateResume(resume, candidateId);
 	}
+	
+	public Candidate updateCandidate(Candidate candidate) {
+		return candidateRepository.save(candidate);
+	}
 
 }

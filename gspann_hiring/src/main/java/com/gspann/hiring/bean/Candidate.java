@@ -13,6 +13,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gspann.hiring.bean.JsonDateSerializer;
+
 /**
  * 
  * @author Tapas Ranjan Joshi
@@ -83,6 +86,7 @@ public class Candidate {
 	public void setIfs(String ifs) {
 		this.ifs = ifs;
 	}
+	@JsonSerialize(using=JsonDateSerializer.class)
 	public Date getCreationDate() {
 		return creationDate;
 	}
