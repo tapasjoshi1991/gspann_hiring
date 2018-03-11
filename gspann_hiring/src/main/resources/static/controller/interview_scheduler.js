@@ -302,7 +302,7 @@ myApp
 						console.log("show candidate details called...");
 						$http
 								.get(
-										'/HEDEnvDetails/InterviewService/candidateWithInterviewStatus/'
+										'/getCandidate/'
 												+ candidateId)
 								.success(
 										function(data) {
