@@ -65,8 +65,8 @@ public class InterviewService {
 		return (List<Interviewer>)interviewerRepo.findAll();
 	}
 	
-	public boolean updateResume(byte[] resume, long candidateId) {
-		return candidateDao.updateResume(resume, candidateId);
+	public boolean updateResume(byte[] resume, String resumeName, long candidateId) {
+		return candidateDao.updateResume(resume, resumeName, candidateId);
 	}
 	
 	public Candidate updateCandidate(Candidate candidate) {

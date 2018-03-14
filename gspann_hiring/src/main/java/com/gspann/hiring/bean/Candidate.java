@@ -34,6 +34,7 @@ public class Candidate {
 	private String experience;
 	@Lob
 	private byte[] resume;
+	private String resumeName;
 	private String ifs;
 	private Date creationDate;
 	private String candidateStatus;
@@ -117,6 +118,14 @@ public class Candidate {
 	public void setInterviewStatusList(
 			List<InterviewStatus> interviewStatusList) {
 		this.interviewStatusList = interviewStatusList;
+	}
+	
+	
+	public String getResumeName() {
+		return resumeName;
+	}
+	public void setResumeName(String resumeName) {
+		this.resumeName = resumeName;
 	}
 	@Override
 	public String toString() {

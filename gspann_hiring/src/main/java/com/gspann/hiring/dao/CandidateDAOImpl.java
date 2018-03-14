@@ -15,10 +15,11 @@ public class CandidateDAOImpl implements CandidateDAO {
 	
 	@Override
 	@Transactional
-	public boolean updateResume(byte[] resume, long candidateId) {
-		Query query = em.createQuery("update Candidate c set c.resume = :resume where c.candidateId = :candidateId");
+	public boolean updateResume(byte[] resume, String resumeName, long candidateId) {
+		Query query = em.createQuery("update Candidate c set c.resume = :resume, c.resumeName = :resumeName where c.candidateId = :candidateId");
 		query.setParameter("resume", resume);
 		query.setParameter("candidateId", candidateId);
+		query.setParameter("resumeName", resumeName);
 		int count = query.executeUpdate();
 		if(count > 0)
 			return true;

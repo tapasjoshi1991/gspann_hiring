@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CandidateDAO {
 	
-	boolean updateResume(byte[] resume, long candidateId);
+	boolean updateResume(byte[] resume, String resumeName, long candidateId);
 
 }

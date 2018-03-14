@@ -1,10 +1,14 @@
 package com.gspann.hiring.rest;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.activation.DataHandler;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,7 @@ import com.gspann.hiring.bean.InterviewStatus;
 import com.gspann.hiring.bean.Interviewer;
 import com.gspann.hiring.bean.Organization;
 import com.gspann.hiring.service.InterviewService;
+import com.gspann.hiring.util.Mailer;
 
 @RestController
 public class InterviewResource {
@@ -36,7 +41,7 @@ public class InterviewResource {
 
 	@PostMapping("/candidate")
 	public ResponseEntity<Candidate> addCandidate(@RequestBody Candidate candidate, UriComponentsBuilder uriBuilder) {
-		System.out.println("Hit the server!!!");
+		// System.out.println("Hit the server!!!");
 		Candidate resultantCandidate = interviewService.addCandidate(candidate);
 		Organization org = new Organization();
 		org.setOrgName(candidate.getOrganization());
@@ -53,7 +58,8 @@ public class InterviewResource {
 	}
 
 	@PostMapping("/uploadResume")
-	public ResponseEntity uploadResume(@RequestParam("uploadFile") MultipartFile uploadfile, @RequestParam("candidateId") long candidateId) {
+	public ResponseEntity uploadResume(@RequestParam("uploadFile") MultipartFile uploadfile,
+			@RequestParam("candidateId") long candidateId) {
 		if (uploadfile.isEmpty()) {
 			return new ResponseEntity("please select a file!", HttpStatus.OK);
 		}
@@ -61,9 +67,9 @@ public class InterviewResource {
 		byte[] bytes;
 		try {
 			bytes = uploadfile.getBytes();
-//			Path path = Paths.get("D:\\" + uploadfile.getOriginalFilename());
-//			Files.write(path, bytes);
-			boolean flag = interviewService.updateResume(bytes, candidateId);
+			// Path path = Paths.get("D:\\" + uploadfile.getOriginalFilename());
+			// Files.write(path, bytes);
+			boolean flag = interviewService.updateResume(bytes, uploadfile.getOriginalFilename(), candidateId);
 			System.out.println(flag);
 			return ResponseEntity.ok().build();
 		} catch (IOException e) {
@@ -73,43 +79,59 @@ public class InterviewResource {
 		}
 
 	}
-	
+
 	@PostMapping("/interview")
-	public ResponseEntity<InterviewStatus> addInterview(@RequestBody InterviewStatus interview){
-		
+	public ResponseEntity<InterviewStatus> addInterview(@RequestBody InterviewStatus interview) {
+
 		InterviewStatus resultantInterview = interviewService.addInterview(interview);
 		Candidate candidate = interviewService.getCandidate(interview.getCandidateId());
 		candidate.setCandidateStatus("ASSIGNED");
 		candidate.setInterviewLevel(interview.getInterviewLevel());
+		candidate.setLastInterviewedBy(interview.getInterviewer());
 		interviewService.updateCandidate(candidate);
-		Optional<InterviewStatus> opt = Optional.of(resultantInterview);
-		if(opt.isPresent()) {
-			return new ResponseEntity<InterviewStatus>(resultantInterview,null,HttpStatus.CREATED);
-		}else {
-			return new ResponseEntity<InterviewStatus>(null,null,HttpStatus.EXPECTATION_FAILED);
+		Path path = Paths.get(".\\" + candidate.getResumeName());
+		try {
+			Files.write(path, candidate.getResume());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-	}
-	
-	@GetMapping("/downloadResume/{candidateId}")
-	public ResponseEntity<ByteArrayResource> getSteamingFile(@PathVariable("candidateId") long candidateId, HttpServletResponse response) throws IOException {
-//	        response.setContentType("application/msword");
-//	        Candidate candidate = interviewService.getCandidate(candidateId);
-//	        response.setHeader("Content-Disposition", "attachment; filename=\""+candidate.getName()+".doc\"");
-//	        //InputStream inputStream = new FileInputStream(new File("C:\\demo-file.pdf"));
-//	        return outputStream -> {
-//	            outputStream.write(candidate.getResume());
-//	        };
-	        
-	        Candidate candidate = interviewService.getCandidate(candidateId);
-	        ByteArrayResource resource = new ByteArrayResource(candidate.getResume());
+		Mailer.send(candidate.getLastInterviewedBy(),
+				"Interview level : " + candidate.getInterviewLevel() + " for candidate " + candidate.getName() + "",
+				"Please take the interview and share the feedback", candidate.getResumeName());
+		Optional<InterviewStatus> opt = Optional.of(resultantInterview);
+		if (opt.isPresent()) {
+			return new ResponseEntity<InterviewStatus>(resultantInterview, null, HttpStatus.CREATED);
+		} else {
+			return new ResponseEntity<InterviewStatus>(null, null, HttpStatus.EXPECTATION_FAILED);
+		}
 
-	        return ResponseEntity.ok()
-	              .header(HttpHeaders.CONTENT_DISPOSITION,
-	                    "attachment;filename=" + candidate.getName()+".doc")
-	              .contentType(MediaType.MULTIPART_FORM_DATA).contentLength(candidate.getResume().length)
-	              .body(resource);
-	    }
+	}
+
+	@GetMapping("/downloadResume/{candidateId}")
+	public ResponseEntity<ByteArrayResource> getSteamingFile(@PathVariable("candidateId") long candidateId,
+			HttpServletResponse response) throws IOException {
+		// response.setContentType("application/msword");
+		// Candidate candidate = interviewService.getCandidate(candidateId);
+		// response.setHeader("Content-Disposition", "attachment;
+		// filename=\""+candidate.getName()+".doc\"");
+		// //InputStream inputStream = new FileInputStream(new
+		// File("C:\\demo-file.pdf"));
+		// return outputStream -> {
+		// outputStream.write(candidate.getResume());
+		// };
+
+		Candidate candidate = interviewService.getCandidate(candidateId);
+		Path path = Paths.get(".\\" + candidate.getResumeName());
+		Files.write(path, candidate.getResume());
+		ByteArrayResource attachment = new ByteArrayResource(candidate.getResume());
+
+		ByteArrayResource resource = new ByteArrayResource(candidate.getResume());
+
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + candidate.getResumeName())
+				.contentType(MediaType.MULTIPART_FORM_DATA).body(resource);
+	}
 
 	@GetMapping("/candidates")
 	public ResponseEntity<List<Candidate>> getAllCandidates() {
@@ -128,7 +150,7 @@ public class InterviewResource {
 		can.setLastInterviewedBy("");
 		can.setName("Tapas Ranjan Joshi");
 		can.setOrganization("Oracle");
-		//can.setResume("D:/interview/resume");
+		// can.setResume("D:/interview/resume");
 		can.setRole("Developer");
 		// can.setInterviewStatusList(arrList);
 		Candidate resultantCandidate = interviewService.addCandidate(can);
