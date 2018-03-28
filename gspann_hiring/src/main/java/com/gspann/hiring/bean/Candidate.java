@@ -120,11 +120,6 @@ public class Candidate {
 		this.interviewStatusList = interviewStatusList;
 	}
 	
-	
-	@Override
-	public boolean equals(Object arg0) {
-		return super.equals(arg0);
-	}
 	public String getResumeName() {
 		return resumeName;
 	}
