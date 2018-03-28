@@ -131,6 +131,12 @@ public class Candidate {
 		// TODO Auto-generated method stub
 		return "[name : "+this.getName()+", organization : "+this.getOrganization()+", role : "+this.getRole()+"]";
 	}
+	@Override
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+		return super.equals(obj);
+	}
+	
 	
 	
 	
