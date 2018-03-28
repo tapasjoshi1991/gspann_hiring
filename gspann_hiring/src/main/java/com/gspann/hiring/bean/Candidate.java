@@ -121,6 +121,10 @@ public class Candidate {
 	}
 	
 	
+	@Override
+	public boolean equals(Object arg0) {
+		return super.equals(arg0);
+	}
 	public String getResumeName() {
 		return resumeName;
 	}
@@ -132,6 +136,8 @@ public class Candidate {
 		// TODO Auto-generated method stub
 		return "[name : "+this.getName()+", organization : "+this.getOrganization()+", role : "+this.getRole()+"]";
 	}
+	
+	
 	
 	
 	
